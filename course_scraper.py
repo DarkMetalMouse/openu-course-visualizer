@@ -1,7 +1,7 @@
 import re
 import requests
 from dataclasses import dataclass
-from typing import Iterable,List
+from typing import Iterable, List
 import pickle
 import os
 import itertools
@@ -12,6 +12,7 @@ DEGREE_PAGE_URL = "https://academic.openu.ac.il/CS/computer/program/AF.aspx?vers
 # This splitting string only applies to B.Sc.
 # Change it to suit your degree page
 DEGREE_PAGE_CHOICE_SPLITTER = "בחירה - לפחות 27-31"
+
 
 @dataclass
 class Course:
@@ -25,23 +26,23 @@ class Course:
     recommend_courses: Iterable[int]
 
 
-def get_course_by_id(courses: Iterable[Course], id : int) -> Course:
+def get_course_by_id(courses: Iterable[Course], id: int) -> Course:
     try:
         return [course for course in courses if course.id == id][0]
     except IndexError:
         return None
 
 
-def cleanup_hebrew(string : str) -> str:
+def cleanup_hebrew(string: str) -> str:
     '''remove the RTL and LTR symbols'''
-    return string.replace("&#x202c;","").replace("&#x202b;","")
+    return string.replace("&#x202c;", "").replace("&#x202b;", "")
 
 
 def manual_filter(courses: List[Course]) -> None:
     '''Make manual changes to the Course list'''
 
     # this course has a very long name
-    get_course_by_id(courses,20476).name = "מתמטיקה בדידה"
+    get_course_by_id(courses, 20476).name = "מתמטיקה בדידה"
 
 
 def scrape_data() -> List[Course]:
@@ -53,42 +54,51 @@ def scrape_data() -> List[Course]:
 
     # split it into must and choice
     before, after = content.split(DEGREE_PAGE_CHOICE_SPLITTER, 1)
-    must_url_matches = re.findall(r'https*://www.openu.ac.il/courses/\d+\.htm', before)
-    choise_url_matches = re.findall(r'https*://www.openu.ac.il/courses/\d+\.htm', after)
+    must_url_matches = re.findall(
+        r'https*://www.openu.ac.il/courses/\d+\.htm', before)
+    choise_url_matches = re.findall(
+        r'https*://www.openu.ac.il/courses/\d+\.htm', after)
 
     # make sure we have that information when we create the Course instance
-    urls = itertools.chain([(url, True) for url in must_url_matches], [(url, False) for url in choise_url_matches])
+    urls = itertools.chain([(url, True) for url in must_url_matches], [
+                           (url, False) for url in choise_url_matches])
 
     # parse the urls
     courses = []
     for url_match, required in urls:
         response = requests.get(url_match)
-        page_content = response.content.decode('windows-1255') # no idea why they use a different encoding
+        # no idea why they use a different encoding
+        page_content = response.content.decode('windows-1255')
 
         # get the title
         title_match = re.search(r'<title>(.*?)</title>', page_content)
 
         # title is in format "{RTL}id name{LTR}"
-        id, name =  cleanup_hebrew(title_match.group(1)).split(" ", 1)
+        id, name = cleanup_hebrew(title_match.group(1)).split(" ", 1)
 
         # extract credits and course level
-        credits,level = re.findall(r'(\d+) נקודות זכות ברמה (רגילה|מתקדמת)', page_content)[0]
+        credits, level = re.findall(
+            r'(\d+) נקודות זכות ברמה (רגילה|מתקדמת)', page_content)[0]
         advanced = level == "מתקדמת"
 
         # domain is "science / mathematics" or "science / computer science"
-        domain = re.search(r'<strong>\s*שיוך:\s*<\/strong>(.*?)<\/p>', page_content, re.DOTALL).group(1).split("/")[1].strip()
+        domain = re.search(r'<strong>\s*שיוך:\s*<\/strong>(.*?)<\/p>',
+                           page_content, re.DOTALL).group(1).split("/")[1].strip()
 
         # parse prerequisite courses
-        requirements = re.search(r'<p>\s*<img src="gifs/triangle.jpg" \b.*?>(.*?)<\/p>',page_content, re.DOTALL).group(1)
+        requirements = re.search(
+            r'<p>\s*<img src="gifs/triangle.jpg" \b.*?>(.*?)<\/p>', page_content, re.DOTALL).group(1)
         try:
             # assume all courses mentioned before the word are required
             # and all the ones after it are not
             before, after = requirements.split("מומלץ")
         except ValueError:
-            before,after = requirements,""
+            before, after = requirements, ""
         # parse prerequisite course ids
-        must = list([ int(x) for x in re.findall(r'https*://www\.openu\.ac\.il/courses/(\d+)\.htm', before)])
-        recommend = list([ int(x) for x in re.findall(r'https*://www\.openu\.ac\.il/courses/(\d+)\.htm', after)])
+        must = list([int(x) for x in re.findall(
+            r'https*://www\.openu\.ac\.il/courses/(\d+)\.htm', before)])
+        recommend = list([int(x) for x in re.findall(
+            r'https*://www\.openu\.ac\.il/courses/(\d+)\.htm', after)])
 
         courses.append(Course(id=int(id),
                               name=name,
@@ -98,7 +108,7 @@ def scrape_data() -> List[Course]:
                               required=required,
                               must_courses=must,
                               recommend_courses=recommend))
-        
+
     # hand made modifications to the output
     manual_filter(courses)
 
@@ -115,7 +125,7 @@ def load_courses() -> List[Course]:
             courses = pickle.load(f)
     except (FileNotFoundError, pickle.UnpicklingError):
         courses = scrape_data()
-        
+
         with open('courses.pickle', 'wb') as f:
             pickle.dump(courses, f)
     return courses
