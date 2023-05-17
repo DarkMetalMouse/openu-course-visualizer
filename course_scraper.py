@@ -109,6 +109,15 @@ def scrape_data() -> List[Course]:
                               must_courses=must,
                               recommend_courses=recommend))
 
+    # filter out all unknown courses
+    all_ids = {course.id for course in courses}  # get ids of all known courses
+    for course in courses:
+        # recrate lists using only the known ids
+        course.must_courses = [
+            id for id in course.must_courses if id in all_ids]
+        course.recommend_courses = [
+            id for id in course.recommend_courses if id in all_ids]
+
     # hand made modifications to the output
     manual_filter(courses)
 

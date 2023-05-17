@@ -30,13 +30,6 @@ courses = load_courses()
 
 # courses = [course for course in courses if course.must] # only must courses
 
-# filter out all unknown courses
-all_ids = {course.id for course in courses}  # get ids of all known courses
-for course in courses:
-    # recrate lists using only the known ids
-    course.must_courses = [id for id in course.must_courses if id in all_ids]
-    course.recommend_courses = [id for id in course.recommend_courses if id in all_ids]
-
 net = Network(notebook=True, directed=True, height="750px", width="100%")
 
 # add nodes
