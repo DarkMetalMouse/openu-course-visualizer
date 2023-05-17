@@ -47,7 +47,8 @@ courses = topological_sort(load_courses())
 
 # courses = [course for course in courses if course.must] # only must courses
 
-net = Network(notebook=True, directed=True, height="750px", width="100%")
+net = Network(notebook=True, directed=True, height="750px",
+              width="100%", select_menu=True, filter_menu=True)
 
 # add nodes
 for course in courses:
