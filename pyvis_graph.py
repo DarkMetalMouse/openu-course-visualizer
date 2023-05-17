@@ -48,13 +48,14 @@ courses = topological_sort(load_courses())
 # courses = [course for course in courses if course.must] # only must courses
 
 net = Network(notebook=True, directed=True, height="750px",
-              width="100%", select_menu=True, filter_menu=True)
+              width="100%", select_menu=True, filter_menu=True, layout=True,)
 
 # add nodes
 for course in courses:
     net.add_node(course.id,
                  label=get_label(course),
                  color=get_topological_colors(course),
+                 level=course.level,
                  shape="box")
 
 # add edges
@@ -64,9 +65,23 @@ for course in courses:
 
     for rec in course.recommend_courses:
         net.add_edge(rec, course.id, color="blue", smooth=False)
-
+# net.options.layout.hierarchical.levelSeparation=300
 net.toggle_physics(False)  # nodes repelling off
+net.show_buttons(filter_=["layout", "interaction"])
+net.set_options("""
+var options = {
+    "configure": { "enabled": false },
+    "physics": { "enabled": false },
+    "interaction": { "navigationButtons": true },
+    "layout": {
+        "hierarchical": {
+            "enabled": true,
+            "levelSeparation": 250,
+            "direction": "LR",
+            "treeSpacing": 0
+        }
+    }
+}""")
 
 net.show("course_graph.html")
-
 webbrowser.open("course_graph.html")
