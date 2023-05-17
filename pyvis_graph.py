@@ -1,6 +1,6 @@
 from pyvis.network import Network
 from course_scraper import load_courses, Course
-from course_analyzer import topological_sort
+from course_analyzer import topological_sort, LeveledCourse
 import webbrowser
 
 DARKEN_MOD = 0.8
@@ -27,7 +27,7 @@ def darken_color(hex_color):
     return f"#{int(r * DARKEN_MOD):02x}{int(g * DARKEN_MOD):02x}{int(b * DARKEN_MOD):02x}"
 
 
-def get_topological_colors(course: Course) -> str:
+def get_topological_colors(course: LeveledCourse) -> str:
     return COLORS[course.level] if course.required else darken_color(COLORS[course.level])
 
 
