@@ -1,6 +1,7 @@
 from pyvis.network import Network
 from course_scraper import load_courses, Course
 from course_analyzer import topological_sort, LeveledCourse
+from typing import Iterable, List
 import webbrowser
 
 DARKEN_MOD = 0.8
@@ -18,6 +19,18 @@ def get_color(course: Course) -> str:
 
     # everything else is compsci
     return "#00B050"  # green
+
+
+def split_by_level(courses: Iterable[LeveledCourse]) -> List[Iterable[LeveledCourse]]:
+    levels = []
+    while (level_courses := [course for course in courses if course.level == len(levels)]):
+        levels.append(level_courses)
+    return levels
+
+
+def sort_required_first(split_courses: List[Iterable[LeveledCourse]]) -> None:
+    for courses in split_courses:
+        courses.sort(reverse=True, key=lambda c: c.required)
 
 
 def darken_color(hex_color):
@@ -45,26 +58,34 @@ def get_label(course: Course) -> str:
 
 courses = topological_sort(load_courses())
 
+courses_by_level = split_by_level(courses)
+sort_required_first(courses_by_level)
+
 # courses = [course for course in courses if course.must] # only must courses
 
 net = Network(notebook=True, directed=True, height="750px",
               width="100%", select_menu=True, filter_menu=True, layout=True,)
 
+
+node_ids = {}
 # add nodes
-for course in courses:
-    net.add_node(course.id,
-                 label=get_label(course),
-                 color=get_topological_colors(course),
-                 level=course.level,
-                 shape="box")
+for level in courses_by_level:
+    for i, course in enumerate(level):
+        id = i*100000+course.id
+        node_ids[course.id] = id
+        net.add_node(id,
+                     label=get_label(course),
+                     color=get_topological_colors(course),
+                     level=course.level,
+                     shape="box")
 
 # add edges
 for course in courses:
     for must in course.must_courses:
-        net.add_edge(must, course.id, color="red", smooth=False)
+        net.add_edge(node_ids[must], node_ids[course.id], color="red", smooth=False)
 
     for rec in course.recommend_courses:
-        net.add_edge(rec, course.id, color="blue", smooth=False)
+        net.add_edge(node_ids[rec], node_ids[course.id], color="blue", smooth=False)
 
 net.set_options("""
 var options = {
