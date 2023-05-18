@@ -7,6 +7,7 @@ DARKEN_MOD = 0.8
 COLORS = ['#e15759', '#f28e2c', '#edc949',
           '#59a14f', '#76b7b2', '#4e79a7', '#b07aa1']
 
+
 def get_color(course: Course) -> str:
     ''' Color coding according to course data'''
     if not course.required:
@@ -65,9 +66,7 @@ for course in courses:
 
     for rec in course.recommend_courses:
         net.add_edge(rec, course.id, color="blue", smooth=False)
-# net.options.layout.hierarchical.levelSeparation=300
-net.toggle_physics(False)  # nodes repelling off
-net.show_buttons(filter_=["layout", "interaction"])
+
 net.set_options("""
 var options = {
     "configure": { "enabled": false },
