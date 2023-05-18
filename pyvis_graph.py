@@ -61,10 +61,8 @@ courses = topological_sort(load_courses())
 courses_by_level = split_by_level(courses)
 sort_required_first(courses_by_level)
 
-# courses = [course for course in courses if course.must] # only must courses
-
-net = Network(notebook=True, directed=True, height="750px",
-              width="100%", select_menu=True, filter_menu=True, layout=True,)
+net = Network(notebook=True, directed=True, height="900px",
+              width="100%", select_menu=True, layout=True)
 
 
 node_ids = {}
@@ -82,10 +80,12 @@ for level in courses_by_level:
 # add edges
 for course in courses:
     for must in course.must_courses:
-        net.add_edge(node_ids[must], node_ids[course.id], color="red", smooth=False)
+        net.add_edge(node_ids[must], node_ids[course.id],
+                     color="red", smooth=False)
 
     for rec in course.recommend_courses:
-        net.add_edge(node_ids[rec], node_ids[course.id], color="blue", smooth=False)
+        net.add_edge(node_ids[rec], node_ids[course.id],
+                     color="blue", smooth=False)
 
 net.set_options("""
 var options = {
