@@ -43,6 +43,10 @@ def manual_filter(courses: List[Course]) -> None:
 
     # this course has a very long name
     get_course_by_id(courses, 20476).name = "מתמטיקה בדידה"
+    get_course_by_id(courses, 20425).name = "הסתברות ומבוא לסטטיסטיקה למדמ\"ח"
+
+    # 3 regular credits + 2 advanced credits
+    get_course_by_id(courses, 20604).credits = 5
 
 
 def scrape_data() -> List[Course]:
