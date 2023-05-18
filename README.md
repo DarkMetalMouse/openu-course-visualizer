@@ -6,7 +6,9 @@ Currently tested only with [B.Sc in CompSci](https://academic.openu.ac.il/CS/com
 Run the [pyvis_graph.py](/pyvis_graph.py).
 
 The program will scrape the website using the url in [course_scraper.py](/course_scraper.py#L11).
-An HTML file containing the [interactive graph](https://pyvis.readthedocs.io/en/latest/tutorial.html) with be created and opened. 
+An HTML file containing the [interactive graph](https://pyvis.readthedocs.io/en/latest/tutorial.html) with be created and opened.
+
+The default view is a hierarchical view, where dependencies go from left to right. Red means required courses and blue means reccomended courses.
 
 ## Requirements
  * python
