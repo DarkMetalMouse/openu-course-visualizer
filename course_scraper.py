@@ -1,11 +1,11 @@
+import itertools
+import os
+import pickle
 import re
-import requests
 from dataclasses import dataclass
 from typing import Iterable, List
-import pickle
-import os
-import itertools
 
+import requests
 
 PICKLE_FILENAME = "courses.pickle"
 DEGREE_PAGE_URL = "https://academic.openu.ac.il/CS/computer/program/AF.aspx?version=108"

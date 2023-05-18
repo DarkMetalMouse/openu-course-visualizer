@@ -1,8 +1,10 @@
-from pyvis.network import Network
-from course_scraper import load_courses, Course
-from course_analyzer import topological_sort, LeveledCourse
-from typing import Iterable, List
 import webbrowser
+from typing import Iterable, List
+
+from pyvis.network import Network
+
+from course_analyzer import LeveledCourse, topological_sort
+from course_scraper import Course, load_courses
 
 DARKEN_MOD = 0.8
 COLORS = ['#e15759', '#f28e2c', '#edc949',

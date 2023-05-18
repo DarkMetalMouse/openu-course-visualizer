@@ -1,8 +1,8 @@
-from course_scraper import load_courses, Course
-from typing import Iterable, List
-from dataclasses import dataclass
 from collections import deque
-import time
+from dataclasses import dataclass
+from typing import Iterable
+
+from course_scraper import Course
 
 
 @dataclass
