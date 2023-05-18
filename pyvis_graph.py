@@ -44,7 +44,6 @@ def get_label(course: Course) -> str:
 
 
 courses = topological_sort(load_courses())
-courses = topological_sort(load_courses())
 
 # courses = [course for course in courses if course.must] # only must courses
 
