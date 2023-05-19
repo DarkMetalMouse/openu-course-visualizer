@@ -89,19 +89,21 @@ def scrape_data() -> List[Course]:
                            page_content, re.DOTALL).group(1).split("/")[1].strip()
 
         # parse prerequisite courses
-        requirements = re.search(
-            r'<p>\s*<img src="gifs/triangle.jpg" \b.*?>(.*?)<\/p>', page_content, re.DOTALL).group(1)
-        try:
-            # assume all courses mentioned before the word are required
-            # and all the ones after it are not
-            before, after = requirements.split("מומלץ")
-        except ValueError:
-            before, after = requirements, ""
-        # parse prerequisite course ids
-        must = list([int(x) for x in re.findall(
-            r'https*://www\.openu\.ac\.il/courses/(\d+)\.htm', before)])
-        recommend = list([int(x) for x in re.findall(
-            r'https*://www\.openu\.ac\.il/courses/(\d+)\.htm', after)])
+        requirements_match = re.search(
+            r'<p>\s*<img src="gifs/triangle.jpg" \b.*?>(.*?)<\/p>', page_content, re.DOTALL)
+        if requirements_match:
+            requirements = requirements_match.group(1)
+            try:
+                # assume all courses mentioned before the word are required
+                # and all the ones after it are not
+                before, after = requirements.split("מומלץ")
+            except ValueError:
+                before, after = requirements, ""
+            # parse prerequisite course ids
+            must = list([int(x) for x in re.findall(
+                r'https*://www\.openu\.ac\.il/courses/(\d+)\.htm', before)])
+            recommend = list([int(x) for x in re.findall(
+                r'https*://www\.openu\.ac\.il/courses/(\d+)\.htm', after)])
 
         courses.append(Course(id=int(id),
                               name=name,
