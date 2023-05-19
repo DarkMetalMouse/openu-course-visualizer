@@ -1,5 +1,4 @@
 import colorsys
-import webbrowser
 from typing import Iterable, List
 
 from pyvis.network import Network
@@ -77,7 +76,7 @@ courses = topological_sort(load_courses())
 courses_by_level = split_by_level(courses)
 sort_required_first(courses_by_level)
 
-net = Network(notebook=True, directed=True, height="900px",
+net = Network(directed=True, height="900px",
               width="100%", select_menu=True, layout=True)
 
 
@@ -120,5 +119,4 @@ var options = {
     }
 }""")
 
-net.show("course_graph.html")
-webbrowser.open("course_graph.html")
+net.write_html("course_graph.html", open_browser=True)
