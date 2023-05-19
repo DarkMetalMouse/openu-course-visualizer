@@ -80,8 +80,14 @@ def scrape_data() -> List[Course]:
         id, name = cleanup_hebrew(title_match.group(1)).split(" ", 1)
 
         # extract credits and course level
-        credits, level = re.findall(
-            r'(\d+).*? נקודות זכות ברמ(?:ת|ה) (רגילה|מתקדמת|פתיחה)', page_content)[0]
+        credits_match = re.search(
+            r'<strong>(\d+).*? נקודות זכות(?: ברמ(?:ת|ה) (רגילה|מתקדמת|פתיחה))*', page_content)
+        if credits_match:
+            credits = credits_match.group(1)
+            level = credits_match.group(2)
+        else:
+            credits = 0
+            level = ""
         advanced = level == "מתקדמת"
 
         # domain is "science / mathematics" or "science / computer science"
