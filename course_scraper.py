@@ -81,7 +81,7 @@ def scrape_data() -> List[Course]:
 
         # extract credits and course level
         credits, level = re.findall(
-            r'(\d+).*? נקודות זכות ברמה (רגילה|מתקדמת)', page_content)[0]
+            r'(\d+).*? נקודות זכות ברמ(?:ת|ה) (רגילה|מתקדמת|פתיחה)', page_content)[0]
         advanced = level == "מתקדמת"
 
         # domain is "science / mathematics" or "science / computer science"
