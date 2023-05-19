@@ -6,7 +6,7 @@ from course_scraper import Course
 
 @dataclass
 class LeveledCourse(Course):
-    level: int
+    level: int = 0
 
     def __init__(self, course: Course, level: int):
         super().__init__(**course.__dict__)

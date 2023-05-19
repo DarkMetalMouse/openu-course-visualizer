@@ -9,28 +9,28 @@ import requests
 
 PICKLE_FILENAME = "courses.pickle"
 DEGREE_PAGE_URL = "https://academic.openu.ac.il/CS/computer/program/AF.aspx?version=108"
-# This splitting string only applies to B.Sc.
+# This splitting string only applies to B.Sc. in CompSci
 # Change it to suit your degree page
 DEGREE_PAGE_CHOICE_SPLITTER = "בחירה - לפחות 27-31"
 
 
 @dataclass
 class Course:
-    id: int
-    name: str
-    credits: int
-    advanced: bool
-    domain: str
-    required: bool
-    must_courses: Iterable[int]
-    recommend_courses: Iterable[int]
+    id: int = -1
+    name: str = ""
+    credits: int = -1
+    advanced: bool = False
+    domain: str = ""
+    required: bool = False
+    must_courses: Iterable[int] = ()
+    recommend_courses: Iterable[int] = ()
 
 
 def get_course_by_id(courses: Iterable[Course], id: int) -> Course:
     try:
         return [course for course in courses if course.id == id][0]
     except IndexError:
-        return None
+        return Course()
 
 
 def cleanup_hebrew(string: str) -> str:
@@ -40,7 +40,6 @@ def cleanup_hebrew(string: str) -> str:
 
 def manual_filter(courses: List[Course]) -> None:
     '''Make manual changes to the Course list'''
-
     # this course has a very long name
     get_course_by_id(courses, 20476).name = "מתמטיקה בדידה"
     get_course_by_id(courses, 20425).name = "הסתברות ומבוא לסטטיסטיקה למדמ\"ח"
@@ -82,7 +81,7 @@ def scrape_data() -> List[Course]:
 
         # extract credits and course level
         credits, level = re.findall(
-            r'(\d+) נקודות זכות ברמה (רגילה|מתקדמת)', page_content)[0]
+            r'(\d+).*? נקודות זכות ברמה (רגילה|מתקדמת)', page_content)[0]
         advanced = level == "מתקדמת"
 
         # domain is "science / mathematics" or "science / computer science"
