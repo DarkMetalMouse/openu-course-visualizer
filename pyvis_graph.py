@@ -1,15 +1,15 @@
+import colorsys
 import webbrowser
 from typing import Iterable, List
 
 from pyvis.network import Network
 
-from course_analyzer import LeveledCourse, topological_sort
+from course_analyzer import LeveledCourse, topological_sort, find_max_level
 from course_scraper import Course, load_courses
 
-DARKEN_MOD = 0.8
-COLORS = ['#e15759', '#f28e2c', '#edc949',
-          '#59a14f', '#76b7b2', '#4e79a7', '#b07aa1']
-
+DARKEN_MOD = 0.7
+SATURATION = 0.6
+VALUE = 1
 
 def get_color(course: Course) -> str:
     ''' Color coding according to course data'''
@@ -35,6 +35,20 @@ def sort_required_first(split_courses: List[Iterable[LeveledCourse]]) -> None:
         courses.sort(reverse=True, key=lambda c: c.required)
 
 
+def generate_rainbow_array(num_colors):
+    rainbow = []
+
+    # Generate colors using the HSV color space
+    for i in range(num_colors):
+        hue = i / num_colors
+        rgb = colorsys.hsv_to_rgb(hue, SATURATION, VALUE)  # Convert HSV to RGB
+        color = '#%02x%02x%02x' % tuple(
+            int(c * 255) for c in rgb)  # Convert RGB to hex
+        rainbow.append(color)
+
+    return rainbow
+
+
 def darken_color(hex_color):
     # Convert hex color to RGB values
     r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (1, 3, 5))
@@ -43,8 +57,8 @@ def darken_color(hex_color):
     return f"#{int(r * DARKEN_MOD):02x}{int(g * DARKEN_MOD):02x}{int(b * DARKEN_MOD):02x}"
 
 
-def get_topological_colors(course: LeveledCourse) -> str:
-    return COLORS[course.level] if course.required else darken_color(COLORS[course.level])
+def get_topological_colors(colors: List[str], course: LeveledCourse) -> str:
+    return colors[course.level] if course.required else darken_color(colors[course.level])
 
 
 def get_label(course: Course) -> str:
@@ -69,13 +83,14 @@ net = Network(notebook=True, directed=True, height="900px",
 
 node_ids = {}
 # add nodes
+colors = generate_rainbow_array(find_max_level(courses)+1)
 for level in courses_by_level:
     for i, course in enumerate(level):
         id = i*100000+course.id
         node_ids[course.id] = id
         net.add_node(id,
                      label=get_label(course),
-                     color=get_topological_colors(course),
+                     color=get_topological_colors(colors, course),
                      level=course.level,
                      shape="box")
 
@@ -99,7 +114,8 @@ var options = {
             "enabled": true,
             "levelSeparation": 250,
             "direction": "LR",
-            "treeSpacing": 0
+            "treeSpacing": 75,
+            "nodeSpacing": 75
         }
     }
 }""")

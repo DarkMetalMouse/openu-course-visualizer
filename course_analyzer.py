@@ -1,7 +1,6 @@
 from collections import deque
 from dataclasses import dataclass
 from typing import Iterable
-
 from course_scraper import Course
 
 
@@ -67,6 +66,9 @@ def topological_sort(courses: Iterable[Course]) -> Iterable[Course]:
 
     return [LeveledCourse(course, level=levels[course.id]) for course in courses]
 
+
+def find_max_level(courses: Iterable[LeveledCourse]) -> int:
+    return max(course.level for course in courses)
 
 if __name__ == "__main__":
     import timeit
